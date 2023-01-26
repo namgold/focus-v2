@@ -1,6 +1,28 @@
-import { printLine } from './modules/print';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-console.log('Content script works!');
-console.log('Must reload extension for modifications to take effect.');
+import Timer from './Timer'
+import { printLine } from './modules/print'
 
-printLine("Using the 'printLine' function from the Print Module");
+console.log('Content script works!')
+console.log('Must reload extension for modifications to take effect.')
+
+printLine("Using the 'printLine' function from the Print Module")
+
+const TIMER_ROOT_ID = 'timer-root'
+
+const InjectTimer = () => {
+  if (!document.getElementById(TIMER_ROOT_ID)) {
+    const timerRoot = document.createElement('div')
+    timerRoot.setAttribute('id', TIMER_ROOT_ID)
+    document.body.appendChild(timerRoot)
+    ReactDOM.render(
+      <React.StrictMode>
+        <Timer />
+      </React.StrictMode>,
+      timerRoot,
+    )
+  }
+}
+
+InjectTimer()
