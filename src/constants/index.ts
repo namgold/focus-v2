@@ -21,6 +21,7 @@ export const DEFAULT = {
     timestamp: 0 as number,
     pauseAmount: 5 as number,
     resetAmount: 30 as number,
+    lastTempPaused: 0 as number,
   },
   pauseAmount: 7 as number,
   resetAmount: 55 as number,

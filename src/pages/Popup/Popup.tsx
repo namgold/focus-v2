@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useChromeStorageSync } from 'use-chrome-storage'
 
-import { DEFAULT } from '../../constants'
+import { DEFAULT, TEMPORARY_PAUSE_MIN_WAIT } from '../../constants'
 import useInterval from '../../hooks/useInterval'
 import { checkAndTryRemove, findBlockWebsite, getActivatedTab, isBlockWebsite } from '../../utils/helper'
 import { NOTIFY_TYPE, addKeyBlockWebsites, notify, secondToMinutes } from '../../utils/index'
@@ -19,7 +19,8 @@ const Popup = () => {
   // const isBlocked = currentTab.current?.url && isBlockWebsite(currentTab.current?.url, blockWebsites)
   const [isBlocked, setIsBlocked] = useState<boolean>(false)
   const [isHover, setIsHover] = useState<boolean>(false)
-  const allowTempPause = pauseLeft <= 0 && unlockIn > 0 && isHover
+  const allowTempPause =
+    pauseLeft <= 0 && unlockIn > 0 && isHover && Date.now() - pausedActivated.lastTempPaused > TEMPORARY_PAUSE_MIN_WAIT
   useEffect(() => {
     const run = async () => {
       const result = Boolean(currentTab.current?.url) && (await isBlockWebsite(currentTab.current?.url, blockWebsites))
@@ -44,12 +45,14 @@ const Popup = () => {
         timestamp: new Date().getTime(),
         pauseAmount: 1,
         resetAmount,
+        lastTempPaused: new Date().getTime(),
       })
     } else {
       setPausedActivated({
         timestamp: new Date().getTime(),
         pauseAmount,
         resetAmount,
+        lastTempPaused: pausedActivated.lastTempPaused,
       })
     }
   }
@@ -100,7 +103,7 @@ const Popup = () => {
                   Pause time left: <span className="text-monospace">{secondToMinutes(pauseLeft)}</span>
                 </>
               ) : unlockIn > 0 ? (
-                isHover ? (
+                allowTempPause ? (
                   <>Temporary pause for 1 minute</>
                 ) : (
                   <>
