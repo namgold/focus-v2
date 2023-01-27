@@ -240,13 +240,15 @@ function Options() {
           </button>
         </div>
       </div>
-      <div className="row mt-3">
-        <div className="col">
-          <button onClick={onResetTime} className="btn btn-danger">
-            Clear timer
-          </button>
+      {process.env.NODE_ENV === 'development' && (
+        <div className="row mt-3">
+          <div className="col">
+            <button onClick={onResetTime} className="btn btn-danger">
+              Clear timer
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
