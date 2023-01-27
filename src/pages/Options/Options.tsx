@@ -215,7 +215,7 @@ function Options() {
                         checked={
                           !website.active
                             ? false
-                            : website.temporaryDisableTimestamp + TEMPORARY_DISABLE_TIME < Date.now()
+                            : (website.temporaryDisableTimestamp || 0) + TEMPORARY_DISABLE_TIME < Date.now()
                         }
                         onClick={e => (e.preventDefault(), onActivateWebsite(website.url))}
                       />
