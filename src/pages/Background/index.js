@@ -18,7 +18,7 @@ chrome.tabs.onUpdated.addListener(function (id, info, tab) {
 
 chrome.tabs.onActivated.addListener(activeInfo => {
   checkAndTryRemove()
-  setInterval(() => checkAndTryRemove(), 5_000)
+  setInterval(checkAndTryRemove, 5_000)
 })
 
 chrome.storage.onChanged.addListener(changes => {
