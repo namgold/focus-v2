@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import { isBlockWebsite } from '../../utils/helper'
 import Timer from './Timer'
 import { printLine } from './modules/print'
 

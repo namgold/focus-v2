@@ -1,11 +1,9 @@
 import React, { useState } from 'react'
-import styled, { css } from 'styled-components'
 import { useChromeStorageSync } from 'use-chrome-storage'
 
 import { DEFAULT } from '../../constants/index'
 import useInterval from '../../hooks/useInterval'
 import { secondToMinutes } from '../../utils'
-import { isBlockWebsite } from '../../utils/helper'
 
 // const TimerWrapper = styled.div<{ timeLeft: number }>`
 //   position: fixed;
