@@ -8,4 +8,4 @@ This is a Chrome Extensions to help you focus on your work, by blocking those an
 
 ---
 
-namgold | [Website](https://lxieyang.github.io)
+namgold | [Website](https://github.com/namgold)
