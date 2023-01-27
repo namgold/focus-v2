@@ -25,8 +25,6 @@ const Timer = () => {
   const { timestamp, pauseAmount } = pausedActivated
   const [, forceUpdate] = useState(0)
   useInterval(() => requestAnimationFrame(forceUpdate), 1000)
-  const isBlock = isBlockWebsite(window.location.origin)
-  if (!isBlock) return null
   const timeleft = (timestamp + pauseAmount * 60000 - Date.now()) / 1000
 
   return (

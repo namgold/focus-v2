@@ -11,7 +11,10 @@ printLine("Using the 'printLine' function from the Print Module")
 
 const TIMER_ROOT_ID = 'timer-root'
 
-const InjectTimer = () => {
+const InjectTimer = async () => {
+  const isBlock = await isBlockWebsite(window.location.origin)
+  if (!isBlock) return null
+
   if (!document.getElementById(TIMER_ROOT_ID)) {
     const timerRoot = document.createElement('div')
     timerRoot.setAttribute('id', TIMER_ROOT_ID)

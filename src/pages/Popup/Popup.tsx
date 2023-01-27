@@ -18,7 +18,8 @@ const Popup = () => {
   const currentTab = useRef<chrome.tabs.Tab | undefined>(undefined)
   // const isBlocked = currentTab.current?.url && isBlockWebsite(currentTab.current?.url, blockWebsites)
   const [isBlocked, setIsBlocked] = useState<boolean>(false)
-
+  const [isHover, setIsHover] = useState<boolean>(false)
+  const allowTempPause = pauseLeft <= 0 && unlockIn > 0 && isHover
   useEffect(() => {
     const run = async () => {
       const result = Boolean(currentTab.current?.url) && (await isBlockWebsite(currentTab.current?.url, blockWebsites))
@@ -37,12 +38,21 @@ const Popup = () => {
 
   blockWebsites = blockWebsites || []
 
-  const onPause = () =>
-    setPausedActivated({
-      timestamp: new Date().getTime(),
-      pauseAmount,
-      resetAmount,
-    })
+  const onPause = () => {
+    if (allowTempPause) {
+      setPausedActivated({
+        timestamp: new Date().getTime(),
+        pauseAmount: 1,
+        resetAmount,
+      })
+    } else {
+      setPausedActivated({
+        timestamp: new Date().getTime(),
+        pauseAmount,
+        resetAmount,
+      })
+    }
+  }
 
   const onBlockThisSite = useCallback(() => {
     if (!currentTab.current || !currentTab.current.url) return
@@ -52,7 +62,11 @@ const Popup = () => {
         if (blockWebsiteRecord) {
           blockWebsiteRecord.active = true
         } else {
-          blockWebsiteRecord = { url: new URL(currentTab.current.url).hostname, active: true }
+          blockWebsiteRecord = {
+            url: new URL(currentTab.current.url).hostname,
+            active: true,
+            temporaryDisableTimestamp: 0,
+          }
           addKeyBlockWebsites(blockWebsiteRecord)
           blockWebsites.push(blockWebsiteRecord)
         }
@@ -71,20 +85,33 @@ const Popup = () => {
         <h1>FOCUS</h1>
       </div>
       <div className="row mt-3">
-        <div className="col">
-          <button className="btn btn-success" onClick={onPause} disabled={unlockIn > 0}>
-            {pauseLeft > 0 ? (
-              <>
-                Pause time left: <span className="text-monospace">{secondToMinutes(pauseLeft)}</span>
-              </>
-            ) : unlockIn > 0 ? (
-              <>
-                Unlock in: <span className="text-monospace">{secondToMinutes(unlockIn)}</span>
-              </>
-            ) : (
-              <>Pause for {pauseAmount} minutes</>
-            )}
-          </button>
+        <div className="col d-flex justify-content-center">
+          <div
+            // style={{ width: 'fit-content' }}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            onFocus={() => setIsHover(true)}
+            onBlur={() => setIsHover(false)}
+            onClick={() => setIsHover(true)}
+          >
+            <button className="btn btn-success" onClick={onPause} disabled={unlockIn > 0 && !allowTempPause}>
+              {pauseLeft > 0 ? (
+                <>
+                  Pause time left: <span className="text-monospace">{secondToMinutes(pauseLeft)}</span>
+                </>
+              ) : unlockIn > 0 ? (
+                isHover ? (
+                  <>Temporary pause for 1 minute</>
+                ) : (
+                  <>
+                    Unlock in: <span className="text-monospace">{secondToMinutes(unlockIn)}</span>
+                  </>
+                )
+              ) : (
+                <>Pause for {pauseAmount} minutes</>
+              )}
+            </button>
+          </div>
         </div>
       </div>
       {currentTab.current?.url && /https?/.test(new URL(currentTab.current?.url).protocol) && (
@@ -96,11 +123,6 @@ const Popup = () => {
           </div>
         </div>
       )}
-      {/* <div className='row'>
-                <div className='col'>
-                    <button class='btn btn-success' onClick={onCancel}>Cancel</button>
-                </div>
-            </div> */}
     </div>
   )
 }

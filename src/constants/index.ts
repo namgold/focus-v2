@@ -1,19 +1,19 @@
 export const DEFAULT = {
   blockWebsites: [
-    { url: 'facebook.com', active: true },
-    { url: 'youtube.com', active: false },
-    { url: 'twitter.com', active: false },
-    { url: 'reddit.com', active: false },
-    { url: 'pinterest.com', active: true },
-    { url: 'vimeo.com', active: true },
-    { url: 'tumblr.com', active: true },
-    { url: 'instagram.com', active: true },
-    { url: 'tiktok.com', active: true },
-    { url: 'quora.com', active: false },
-    { url: 'yahoo.com', active: false },
-    { url: 'netflix.com', active: true },
-    { url: 'voz.vn', active: true },
-    { url: 'o.voz.vn', active: true },
+    { url: 'facebook.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'youtube.com', active: false, temporaryDisableTimestamp: 0 },
+    { url: 'twitter.com', active: false, temporaryDisableTimestamp: 0 },
+    { url: 'reddit.com', active: false, temporaryDisableTimestamp: 0 },
+    { url: 'pinterest.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'vimeo.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'tumblr.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'instagram.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'tiktok.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'quora.com', active: false, temporaryDisableTimestamp: 0 },
+    { url: 'yahoo.com', active: false, temporaryDisableTimestamp: 0 },
+    { url: 'netflix.com', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'voz.vn', active: true, temporaryDisableTimestamp: 0 },
+    { url: 'o.voz.vn', active: true, temporaryDisableTimestamp: 0 },
   ] as Website[],
   // timeTracker: [],
   // elapsed: 0,
@@ -26,5 +26,9 @@ export const DEFAULT = {
   resetAmount: 55 as number,
   activated: true as boolean,
 }
+
+export const TEMPORARY_DISABLE_TIME = 300_000 // 5 mins
+
+export const TEMPORARY_PAUSE_MIN_WAIT = 600_000 // 10 mins
 
 export const storage = chrome.storage.sync

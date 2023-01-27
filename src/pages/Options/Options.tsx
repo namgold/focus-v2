@@ -2,41 +2,11 @@ import produce from 'immer'
 import React, { useEffect, useState } from 'react'
 import { useChromeStorageSync } from 'use-chrome-storage'
 
-import { DEFAULT, storage } from '../../constants/index'
+import Favicon from '../../components/Favicon'
+import { DEFAULT, TEMPORARY_DISABLE_TIME, storage } from '../../constants/index'
 import { ALERT_TYPE, NOTIFY_TYPE, addKeyBlockWebsites, confirm, getUniques, hasDuplicate, notify } from '../../utils'
 import { reset } from '../../utils/helper'
 import './options.css'
-
-const Favicon = ({ src }: { src: string }) => {
-  const [icoStrategyIndex, setIcoStrategyIndex] = useState(0)
-  const [aHref, setAHref] = useState(src)
-
-  const icoStrategy = [
-    (url: string) =>
-      (url.startsWith('https://') || url.startsWith('http://') ? url : 'https://' + url) + '/favicon.ico',
-    (url: string) => 'https://favicon.yandex.net/favicon/' + url,
-  ]
-
-  useEffect(() => {
-    setIcoStrategyIndex(0)
-    setAHref(src.startsWith('https://') || src.startsWith('http://') ? src : 'https://' + src)
-  }, [src])
-
-  const handleError = (e: any) => {
-    console.log('HandleError', e)
-    if (icoStrategyIndex < icoStrategy.length - 1) setIcoStrategyIndex(icoStrategyIndex + 1)
-  }
-
-  return (
-    <a href={aHref} target="_blank" rel="noreferrer">
-      {/* <div style={{ overflow: 'hidden', width: '32px', height: '32px' }}> */}
-      <img src={icoStrategy[icoStrategyIndex](src)} width="32px" alt={src} onError={handleError} />
-      {/* </div> */}
-    </a>
-  )
-}
-
-const MemoFavicon = React.memo(Favicon)
 
 function Options() {
   let [blockWebsitesStorage, setBlockWebsitesStorage] = useChromeStorageSync<Website[]>(
@@ -83,7 +53,11 @@ function Options() {
       if (blockWebsitesStorage?.find(blockWebsite => blockWebsite.url === newWebsite)) {
         notify('Block website existed', NOTIFY_TYPE.ERROR)
       } else {
-        const newWebsiteRecord = { url: newWebsite, active: true }
+        const newWebsiteRecord: Website = {
+          url: newWebsite,
+          active: true,
+          temporaryDisableTimestamp: 0,
+        }
         addKeyBlockWebsites(newWebsiteRecord)
         blockWebsitesStorage.push(newWebsiteRecord)
         setBlockWebsitesStorage(blockWebsitesStorage)
@@ -98,8 +72,12 @@ function Options() {
   }
 
   const onActivateWebsite = (webURL: string) => {
-    const index = blockWebsitesStorage.findIndex(website => website.url === webURL)
-    blockWebsitesStorage[index].active = !blockWebsitesStorage[index].active
+    const index = blockWebsitesStorage.findIndex(website => website.key === webURL)
+    if (!blockWebsitesStorage[index].active) {
+      blockWebsitesStorage[index].active = !blockWebsitesStorage[index].active
+    } else {
+      blockWebsitesStorage[index].temporaryDisableTimestamp = Date.now()
+    }
     setBlockWebsitesStorage(blockWebsitesStorage)
   }
 
@@ -200,7 +178,7 @@ function Options() {
               <tr className="align-middle">
                 <th>Add more</th>
                 <td>
-                  <MemoFavicon src={newWebsite} />
+                  <Favicon src={newWebsite} />
                 </td>
                 <td>
                   <input
@@ -219,7 +197,7 @@ function Options() {
                 <tr key={website.key} className="align-middle">
                   <th scope="row">{index + 1}</th>
                   <td>
-                    <MemoFavicon src={website.url} />
+                    <Favicon src={website.url} />
                   </td>
                   <td>
                     <input
@@ -234,7 +212,11 @@ function Options() {
                     <label className="switch">
                       <input
                         type="checkbox"
-                        checked={website.active}
+                        checked={
+                          !website.active
+                            ? false
+                            : website.temporaryDisableTimestamp + TEMPORARY_DISABLE_TIME < Date.now()
+                        }
                         onClick={e => (e.preventDefault(), onActivateWebsite(website.url))}
                       />
                       <span className="slider round" />
