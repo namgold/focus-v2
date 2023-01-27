@@ -170,7 +170,7 @@ function Options() {
                 <th scope="col">#</th>
                 <th scope="col">Favicon</th>
                 <th scope="col">URL</th>
-                <th scope="col">Activate</th>
+                <th scope="col">Blocked</th>
                 <th scope="col">Remove</th>
               </tr>
             </thead>
