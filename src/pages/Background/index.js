@@ -23,11 +23,13 @@ chrome.tabs.onActivated.addListener(activeInfo => {
 
 chrome.storage.onChanged.addListener(changes => {
   if (changes?.pausedActivated?.newValue) {
-    const timeoutValue =
-      changes.pausedActivated.newValue.timestamp + changes.pausedActivated.newValue.pauseAmount * 60000 - Date.now()
-    setTimeout(() => {
-      setInterval(checkAndTryRemove, 100)
-    }, timeoutValue)
+    try {
+      const timeoutValue =
+        changes.pausedActivated.newValue.timestamp + changes.pausedActivated.newValue.pauseAmount * 60000 - Date.now()
+      setTimeout(() => {
+        setInterval(checkAndTryRemove, 100)
+      }, timeoutValue)
+    } catch {}
   }
 })
 

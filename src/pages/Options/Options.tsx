@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 import { useChromeStorageSync } from 'use-chrome-storage'
 
 import Favicon from '../../components/Favicon'
-import { DEFAULT, TEMPORARY_DISABLE_TIME, storage } from '../../constants/index'
+import { DEFAULT, storage } from '../../constants/index'
 import { ALERT_TYPE, NOTIFY_TYPE, addKeyBlockWebsites, confirm, getUniques, hasDuplicate, notify } from '../../utils'
-import { reset } from '../../utils/helper'
+import { isEnabledBlock, reset } from '../../utils/helper'
 import './options.css'
 
 function Options() {
@@ -71,12 +71,34 @@ function Options() {
     setNewWebsite(e.target.value)
   }
 
-  const onActivateWebsite = (webURL: string) => {
-    const index = blockWebsitesStorage.findIndex(website => website.key === webURL)
-    if (!blockWebsitesStorage[index].active) {
-      blockWebsitesStorage[index].active = !blockWebsitesStorage[index].active
+  const onActivateWebsite = async (webURL: string) => {
+    const index = blockWebsitesStorage.findIndex(website => website.url === webURL)
+    const website = blockWebsitesStorage[index]
+    if (!website) return
+    if (isEnabledBlock(website)) {
+      const confirmResult = await confirm(
+        'Temporary disable',
+        `Do you want to temporary disable ${website.url} for 5 minutes?`,
+        ALERT_TYPE.QUESTION,
+        false,
+        true,
+      )
+      if (confirmResult.isConfirmed) {
+        website.temporaryDisableTimestamp = Date.now()
+      } else if (confirmResult.isDenied) {
+        const confirmResult = await confirm(
+          'Disable',
+          `Do you want to disable ${website.url}?`,
+          ALERT_TYPE.QUESTION,
+          true,
+        )
+        if (confirmResult.isConfirmed) {
+          website.active = false
+        }
+      }
     } else {
-      blockWebsitesStorage[index].temporaryDisableTimestamp = Date.now()
+      website.active = true
+      website.temporaryDisableTimestamp = 0
     }
     setBlockWebsitesStorage(blockWebsitesStorage)
   }
@@ -212,11 +234,7 @@ function Options() {
                     <label className="switch">
                       <input
                         type="checkbox"
-                        checked={
-                          !website.active
-                            ? false
-                            : (website.temporaryDisableTimestamp || 0) + TEMPORARY_DISABLE_TIME < Date.now()
-                        }
+                        checked={isEnabledBlock(website)}
                         onClick={e => (e.preventDefault(), onActivateWebsite(website.url))}
                       />
                       <span className="slider round" />

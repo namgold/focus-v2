@@ -1,4 +1,5 @@
 import { DEFAULT, storage } from '../constants/index'
+import { TEMPORARY_DISABLE_TIME } from './../constants/index'
 import { addKeyBlockWebsites, tryLoop } from './index'
 
 export const clear = () => {
@@ -156,7 +157,7 @@ const isMatchedBlockWebsite = (url: string | undefined, blockWebsites: Website[]
       return false
     }
     const result = !!blockWebsites.find(
-      blockWebsite => blockWebsite.active && u.hostname.toLowerCase().includes(blockWebsite.url.toLowerCase()),
+      blockWebsite => isEnabledBlock(blockWebsite) && u.hostname.toLowerCase().includes(blockWebsite.url.toLowerCase()),
     )
     return result
   }
@@ -228,4 +229,8 @@ export const checkAndTryRemove = async (tab?: chrome.tabs.Tab): Promise<void> =>
   console.log('checkAndTryRemove result', result)
   console.groupEnd()
   return result
+}
+
+export const isEnabledBlock = (website: Website): boolean => {
+  return website.active && (website.temporaryDisableTimestamp || 0) + TEMPORARY_DISABLE_TIME < Date.now()
 }

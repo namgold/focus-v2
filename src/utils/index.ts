@@ -64,13 +64,15 @@ export const confirm = async (
   html: string,
   type: ALERT_TYPE = ALERT_TYPE.WARNING,
   focusCancel: boolean = false,
-): Promise<{ isConfirmed: boolean }> => {
+  showDenyButton: boolean = false,
+): Promise<{ isConfirmed: boolean; isDenied: boolean }> => {
   return Swal.fire({
     icon: type,
     title,
     html,
     focusCancel,
     showConfirmButton: true,
+    showDenyButton,
     showCancelButton: true,
   })
 }

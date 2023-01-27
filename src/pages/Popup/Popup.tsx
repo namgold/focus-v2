@@ -64,6 +64,7 @@ const Popup = () => {
         let blockWebsiteRecord = findBlockWebsite(currentTab.current.url, blockWebsites)
         if (blockWebsiteRecord) {
           blockWebsiteRecord.active = true
+          blockWebsiteRecord.temporaryDisableTimestamp = 0
         } else {
           blockWebsiteRecord = {
             url: new URL(currentTab.current.url).hostname,
