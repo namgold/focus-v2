@@ -1,4 +1,4 @@
-export const DEFAULT = {
+export const DEFAULT: StorageType = {
   blockWebsites: [
     { url: 'facebook.com', active: true, temporaryDisableTimestamp: 0 },
     { url: 'youtube.com', active: false, temporaryDisableTimestamp: 0 },

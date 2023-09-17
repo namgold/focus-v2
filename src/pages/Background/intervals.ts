@@ -1,5 +1,5 @@
 import { storage } from '../../constants'
-import { checkAndTryRemove } from '../../utils/helper'
+import { checkAndTryRemove, getStorage } from '../../utils/helper'
 
 const tabs: {
   [id: string]: {
@@ -9,7 +9,7 @@ const tabs: {
 } = {}
 
 setInterval(async () => {
-  const storageData = (await storage.get()) as Storage
+  const storageData = await getStorage()
 
   console.log('intervals - checkAndTryRemove current tab')
   checkAndTryRemove(null, storageData)

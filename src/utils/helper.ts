@@ -36,7 +36,7 @@ enum TIME_STATUS {
   DISABLED = 'DISABLED',
 }
 
-export const getTimeStatus = (storageData: Storage): TIME_STATUS => {
+export const getTimeStatus = (storageData: StorageType): TIME_STATUS => {
   if (
     storageData.pausedActivated &&
     Number.isInteger(storageData.pausedActivated.timestamp) &&
@@ -62,7 +62,7 @@ export const getTimeStatus = (storageData: Storage): TIME_STATUS => {
   }
 }
 
-const isBlockTime = (storageData: Storage) => {
+const isBlockTime = (storageData: StorageType) => {
   const timeStatus = getTimeStatus(storageData)
   return timeStatus === TIME_STATUS.BLOCKING_ALLOW_PAUSE || timeStatus === TIME_STATUS.BLOCKING_PREVENT_PAUSE
 }
@@ -99,7 +99,7 @@ const isMatchedBlockWebsite = (url: string | undefined, blockWebsites: Website[]
     if (e instanceof Error && e.message) console.warn(e.message)
     return false
   }
-  const result = !!blockWebsites.find(
+  const result = !!blockWebsites?.find(
     blockWebsite => isEnabledBlock(blockWebsite) && u.hostname.toLowerCase().includes(blockWebsite.url.toLowerCase()),
   )
   return result
@@ -111,7 +111,7 @@ export const isBlockedWebsite = (url: string, blockWebsites: Website[]): boolean
   return false
 }
 
-const isShouldRemove = (url: string, storageData: Storage): boolean => {
+const isShouldRemove = (url: string, storageData: StorageType): boolean => {
   if (isBlockTime(storageData)) {
     const isBlock = isBlockedWebsite(url, storageData.blockWebsites)
     return isBlock
@@ -119,8 +119,11 @@ const isShouldRemove = (url: string, storageData: Storage): boolean => {
   return false
 }
 
-export const checkAndTryRemove = async (tab: chrome.tabs.Tab | null, storageParam: Storage | null): Promise<void> => {
-  const storageData = storageParam || ((await storage.get()) as Storage)
+export const checkAndTryRemove = async (
+  tab: chrome.tabs.Tab | null,
+  storageParam: StorageType | null,
+): Promise<void> => {
+  const storageData = storageParam || ((await getStorage()) as StorageType)
   const activeTab = tab || (await getActivatedTab()) || { url: undefined, id: undefined }
 
   const run = async (): Promise<void> => {
@@ -145,6 +148,17 @@ export const checkAndTryRemove = async (tab: chrome.tabs.Tab | null, storagePara
   console.log('checkAndTryRemove result', result)
   console.groupEnd()
   return result
+}
+
+export const getStorage = async (): Promise<StorageType> => {
+  const storageData = await storage.get()
+  return {
+    blockWebsites: storageData.blockWebsites || DEFAULT.blockWebsites,
+    pausedActivated: storageData.pausedActivated || DEFAULT.pausedActivated,
+    pauseAmount: storageData.pauseAmount || DEFAULT.pauseAmount,
+    resetAmount: storageData.resetAmount || DEFAULT.resetAmount,
+    activated: storageData.activated || DEFAULT.activated,
+  }
 }
 
 export const isEnabledBlock = (website: Website): boolean => {

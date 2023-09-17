@@ -16,7 +16,7 @@ const Favicon = ({ src }: { src: string }) => {
   }, [src])
 
   const handleError = (e: any) => {
-    console.warn('Favicon HandleError', e)
+    console.log('Favicon HandleError', e.message)
     if (icoStrategyIndex < icoStrategy.length - 1) setIcoStrategyIndex(icoStrategyIndex + 1)
   }
 

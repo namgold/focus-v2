@@ -5,7 +5,7 @@ type Website = {
   temporaryDisableTimestamp?: number
 }
 
-type Storage = {
+type StorageType = {
   blockWebsites: Website[]
   pausedActivated: {
     timestamp: number
