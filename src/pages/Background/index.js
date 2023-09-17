@@ -1,4 +1,5 @@
 import { checkAndTryRemove, init } from '../../utils/helper'
+import { addTab } from './intervals'
 
 // chrome.tabs.onUpdated.addListener((...e) => console.info('onUpdated: ', e))
 // chrome.tabs.onActivated.addListener((...e) => console.info('onActivated: ', e));
@@ -12,13 +13,11 @@ import { checkAndTryRemove, init } from '../../utils/helper'
 // chrome.tabs.onCreated.addListener((...e) => console.info('onCreated: ', e));
 
 chrome.tabs.onUpdated.addListener(function (id, info, tab) {
-  checkAndTryRemove(tab)
-  setInterval(() => checkAndTryRemove(tab), 5_000)
+  addTab(tab.id)
 })
 
 chrome.tabs.onActivated.addListener(activeInfo => {
-  checkAndTryRemove()
-  setInterval(checkAndTryRemove, 5_000)
+  addTab(activeInfo.tabId)
 })
 
 chrome.storage.onChanged.addListener(changes => {
@@ -27,7 +26,7 @@ chrome.storage.onChanged.addListener(changes => {
       const timeoutValue =
         changes.pausedActivated.newValue.timestamp + changes.pausedActivated.newValue.pauseAmount * 60000 - Date.now()
       setTimeout(() => {
-        setInterval(checkAndTryRemove, 100)
+        checkAndTryRemove(null, null)
       }, timeoutValue)
     } catch {}
   }

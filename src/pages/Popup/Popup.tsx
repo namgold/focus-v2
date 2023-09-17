@@ -3,7 +3,7 @@ import { useChromeStorageSync } from 'use-chrome-storage'
 
 import { DEFAULT, TEMPORARY_PAUSE_MIN_WAIT } from '../../constants'
 import useInterval from '../../hooks/useInterval'
-import { checkAndTryRemove, findBlockWebsite, getActivatedTab, isBlockWebsite } from '../../utils/helper'
+import { checkAndTryRemove, findBlockWebsite, getActivatedTab, isBlockedWebsite } from '../../utils/helper'
 import { NOTIFY_TYPE, addKeyBlockWebsites, notify, secondToMinutes } from '../../utils/index'
 import './popup.css'
 
@@ -22,11 +22,9 @@ const Popup = () => {
   const allowTempPause =
     pauseLeft <= 0 && unlockIn > 0 && isHover && Date.now() - pausedActivated.lastTempPaused > TEMPORARY_PAUSE_MIN_WAIT
   useEffect(() => {
-    const run = async () => {
-      const result = Boolean(currentTab.current?.url) && (await isBlockWebsite(currentTab.current?.url, blockWebsites))
-      setIsBlocked(result)
-    }
-    run()
+    const url = currentTab.current?.url
+    const result = Boolean(url && isBlockedWebsite(url, blockWebsites))
+    setIsBlocked(result)
   }, [blockWebsites])
 
   useEffect(() => {
@@ -59,7 +57,7 @@ const Popup = () => {
 
   const onBlockThisSite = useCallback(() => {
     if (!currentTab.current || !currentTab.current.url) return
-    if (!isBlockWebsite(currentTab.current.url, blockWebsites)) {
+    if (!isBlockedWebsite(currentTab.current.url, blockWebsites)) {
       try {
         let blockWebsiteRecord = findBlockWebsite(currentTab.current.url, blockWebsites)
         if (blockWebsiteRecord) {
@@ -75,7 +73,7 @@ const Popup = () => {
           blockWebsites.push(blockWebsiteRecord)
         }
         setBlockWebsites(blockWebsites)
-        checkAndTryRemove(currentTab.current)
+        checkAndTryRemove(currentTab.current, null)
       } catch (e) {}
     }
     notify('Website has been blocked', NOTIFY_TYPE.SUCCESS)

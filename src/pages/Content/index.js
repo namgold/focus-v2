@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-import { isBlockWebsite } from '../../utils/helper'
+import { isBlockedWebsite } from '../../utils/helper'
 import Timer from './Timer'
 import { printLine } from './modules/print'
 
@@ -12,8 +12,8 @@ printLine("Using the 'printLine' function from the Print Module")
 
 const TIMER_ROOT_ID = 'timer-root'
 
-const InjectTimer = async () => {
-  const isBlock = await isBlockWebsite(window.location.origin)
+const InjectTimer = () => {
+  const isBlock = isBlockedWebsite(window.location.origin)
   if (!isBlock) return null
 
   if (!document.getElementById(TIMER_ROOT_ID)) {

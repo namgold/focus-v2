@@ -129,7 +129,7 @@ function sleep(duration: number): Promise<void> {
 
 export const tryLoop = async <T>(
   callback: () => Promise<T>,
-  delay: number = 100,
+  delay: number = 400,
   maxTries: number = 100,
   validateResult?: (value: T) => boolean,
   debugTitle?: string,
@@ -137,7 +137,7 @@ export const tryLoop = async <T>(
   let runCount = 0
   const run = async (): Promise<T | undefined> => {
     runCount++
-    if (runCount > maxTries) return undefined
+    if (runCount >= maxTries) return undefined
     try {
       const result = await callback()
       if (validateResult) {
@@ -154,8 +154,7 @@ export const tryLoop = async <T>(
   if (debugTitle) {
     if (validateResult && result ? validateResult(result) : true) {
       console.info(`Running ${debugTitle} success at ${runCount} times after ${(runCount * delay) / 1000}s.`)
-      console.info(`Result = ${result}`)
-      console.info(`Result prettified = ${JSON.stringify(result, null, 2)}`)
+      console.info('Result =', result)
     } else {
       console.warn(`Running ${debugTitle} ${runCount} times failed`)
     }
