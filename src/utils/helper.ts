@@ -153,11 +153,8 @@ export const checkAndTryRemove = async (
 export const getStorage = async (): Promise<StorageType> => {
   const storageData = await storage.get()
   return {
-    blockWebsites: storageData.blockWebsites || DEFAULT.blockWebsites,
-    pausedActivated: storageData.pausedActivated || DEFAULT.pausedActivated,
-    pauseAmount: storageData.pauseAmount || DEFAULT.pauseAmount,
-    resetAmount: storageData.resetAmount || DEFAULT.resetAmount,
-    activated: storageData.activated || DEFAULT.activated,
+    ...DEFAULT,
+    ...storageData,
   }
 }
 

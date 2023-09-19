@@ -1,5 +1,5 @@
 import { checkAndTryRemove, init } from '../../utils/helper'
-import { addTab } from './intervals'
+import { addTab, addTabs } from './intervals'
 
 // chrome.tabs.onUpdated.addListener((...e) => console.info('onUpdated: ', e))
 // chrome.tabs.onActivated.addListener((...e) => console.info('onActivated: ', e));
@@ -12,13 +12,28 @@ import { addTab } from './intervals'
 // chrome.tabs.onZoomChange.addListener((...e) => console.info('onZoomChange: ', e));
 // chrome.tabs.onCreated.addListener((...e) => console.info('onCreated: ', e));
 
-chrome.tabs.onUpdated.addListener(function (id, info, tab) {
+chrome.tabs.onUpdated.addListener(async function (id, info, tab) {
   addTab(tab.id)
 })
 
-chrome.tabs.onActivated.addListener(activeInfo => {
+chrome.tabs.onActivated.addListener(async activeInfo => {
   addTab(activeInfo.tabId)
 })
+
+setInterval(async () => {
+  try {
+    const allTabIds = (
+      await chrome.windows.getAll({
+        populate: true,
+      })
+    )
+      .map(window => window.tabs.map(tab => tab.id))
+      .flat()
+      .filter(Boolean)
+    console.log('all tabs id: ', { allTabIds })
+    addTabs(allTabIds)
+  } catch {}
+}, 10_000)
 
 chrome.storage.onChanged.addListener(changes => {
   if (changes?.pausedActivated?.newValue) {
